@@ -1,0 +1,3 @@
+DROP DATABASE IF EXISTS better_blog;
+
+CREATE DATABASE better_blog;
