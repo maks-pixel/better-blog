@@ -1,8 +1,14 @@
 const { Model, DataTypes } = require('sequelize');
 const sequelize = require('../config/connection');
+const bcrypt = require('bcrypt');
 
 //create our User model
-class User extends Model {}
+class User extends Model {
+    // set up method to run on instance data (per user) ti check password
+    checkPassword(loginPw){
+        return bcrypt.compareSync(loginPw, this.password);
+    }
+}
 
 //define table columns and configuration
 User.init(
@@ -45,6 +51,19 @@ User.init(
         }
     },
     {
+        hooks: {
+            //set up befireCreate lifecycle "hook" functionality
+            //this is the function without the async syntax
+            // beforeCreate(userData){
+            //     return bcrypt.hash(userData.password, 10).then(newUserData => {
+            //         return newUserData
+            //     });
+            // }
+            async beforeCreate(newUserData){
+                newUserData.password = await bcrypt.hash(newUserData.password, 10);
+                    return newUserData;
+            }
+        },
         sequelize,
         //Pass in our imported create createdAt/updatedAt timestamp fields
         timestamps: false,
